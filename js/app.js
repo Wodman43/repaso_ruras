@@ -1,11 +1,12 @@
 const fotoInput = document.querySelector('#traerfoto');
 
-const mascotaInput = document.querySelector('#mascota');
-const propietarioInput = document.querySelector('#propietario');
-const telefonoInput = document.querySelector('#telefono');
-const fechaInput = document.querySelector('#fecha');
-const horaInput = document.querySelector('#hora');
-const sintomasInput = document.querySelector('#sintomas');
+const nombreInput = document.querySelector('#mascota');
+const marcaInput = document.querySelector('#propietario');
+const cilindrajeInput = document.querySelector('#telefono');
+const placaInput = document.querySelector('#fecha');
+const soatInput = document.querySelector('#hora');
+const consumoInput = document.querySelector('#consumo');
+const descripcionInput = document.querySelector('#sintomas');
 
 // Contenedor para las citas
 const contenedorCitas = document.querySelector('#citas');
@@ -16,33 +17,45 @@ formulario.addEventListener('submit', nuevaCita);
 
 let editando = false;
 
+let local = [];
+
 
 // Eventos
 eventListeners();
 function eventListeners() {
+    document.addEventListener('DOMContentLoaded',()=>{
+        local = JSON.parse(localStorage.getItem('local')) || [];
+                ui.imprimirCitas(administrarCitas)
+    })
     fotoInput.addEventListener('change',(e)=>{
         citaObj[e.target.name] = e.target.files[0];
     });
     // fotoInput.addEventListener('change',()=>{
     //     citaObj.lafoto= fotoInput.files[0];
     // });
-    mascotaInput.addEventListener('change', datosCita);
-    propietarioInput.addEventListener('change', datosCita);
-    telefonoInput.addEventListener('change', datosCita);
-    fechaInput.addEventListener('change', datosCita);
-    horaInput.addEventListener('change', datosCita);
-    sintomasInput.addEventListener('change', datosCita);
+    nombreInput.addEventListener('change', datosCita);
+    marcaInput.addEventListener('change', datosCita);
+    cilindrajeInput.addEventListener('change', datosCita);
+    placaInput.addEventListener('change', datosCita);
+    soatInput.addEventListener('change', datosCita);
+    consumoInput.addEventListener('change', datosCita);
+    descripcionInput.addEventListener('change', datosCita);
 }
 
 const citaObj = {
     lafoto:'',
-    mascota: '',
-    propietario: '',
-    telefono: '',
-    fecha: '',
-    hora:'',
-    sintomas: ''
+    nombre: '',
+    marca: '',
+    cilindraje: '',
+    placa: '',
+    soat:'',
+    consumo: '',
+    descripcion: ''
 }
+
+// local = [...local,citaObj]
+
+
 
 
 function datosCita(e) {
@@ -57,6 +70,7 @@ class Citas {
     }
     agregarCita(cita) {
         this.citas = [...this.citas, cita];
+        local.push(citaObj);
     }
     editarCita(citaActualizada) {
         this.citas = this.citas.map( cita => cita.id === citaActualizada.id ? citaActualizada : cita)
@@ -97,7 +111,7 @@ class UI {
         this.limpiarHTML();
 
         citas.forEach(cita => {
-            const {lafoto,mascota, propietario, telefono, fecha, hora, sintomas, id } = cita;
+            const {lafoto,nombre, marca, cilindraje, placa, soat, consumo,descripcion, id } = cita;
 
             const divCita = document.createElement('div');
             divCita.classList.add('cita', 'p-3');
@@ -111,25 +125,30 @@ class UI {
             reader.onload = (e) => {mifoto.src = e.target.result};
             reader.readAsDataURL(lafoto);
 
+            mifoto.style.width = '150px';
+            mifoto.style.height = '150px';
+
             // scRIPTING DE LOS ELEMENTOS...
             const mascotaParrafo = document.createElement('h2');
             mascotaParrafo.classList.add('card-title', 'font-weight-bolder');
-            mascotaParrafo.innerHTML = `${mascota}`;
+            mascotaParrafo.innerHTML = `${nombre}`;
 
             const propietarioParrafo = document.createElement('p');
-            propietarioParrafo.innerHTML = `<span class="font-weight-bolder">Propietario: </span> ${propietario}`;
+            propietarioParrafo.innerHTML = `<span class="font-weight-bolder">Marca: </span> ${marca}`;
 
             const telefonoParrafo = document.createElement('p');
-            telefonoParrafo.innerHTML = `<span class="font-weight-bolder">Teléfono: </span> ${telefono}`;
+            telefonoParrafo.innerHTML = `<span class="font-weight-bolder">Cilindraje: </span> ${cilindraje}`; 
 
             const fechaParrafo = document.createElement('p');
-            fechaParrafo.innerHTML = `<span class="font-weight-bolder">Fecha: </span> ${fecha}`;
+            fechaParrafo.innerHTML = `<span class="font-weight-bolder">Placa: </span> ${placa}`;
 
             const horaParrafo = document.createElement('p');
-            horaParrafo.innerHTML = `<span class="font-weight-bolder">Hora: </span> ${hora}`;
+            horaParrafo.innerHTML = `<span class="font-weight-bolder">Vencimiento Soat: </span> ${soat}`;
+            const consumoparrafo = document.createElement('p');
+            consumoparrafo.innerHTML = `<span class="font-weight-bolder">Consumo: </span> ${consumo}`;
 
             const sintomasParrafo = document.createElement('p');
-            sintomasParrafo.innerHTML = `<span class="font-weight-bolder">Síntomas: </span> ${sintomas}`;
+            sintomasParrafo.innerHTML = `<span class="font-weight-bolder">Descripcion: </span> ${descripcion}`;
 
             // Agregar un botón de eliminar...
             const btnEliminar = document.createElement('button');
@@ -151,6 +170,7 @@ class UI {
             divCita.appendChild(telefonoParrafo);
             divCita.appendChild(fechaParrafo);
             divCita.appendChild(horaParrafo);
+            divCita.appendChild(consumoparrafo);
             divCita.appendChild(sintomasParrafo);
             divCita.appendChild(btnEliminar)
             divCita.appendChild(btnEditar)
@@ -164,6 +184,11 @@ class UI {
             contenedorCitas.removeChild(contenedorCitas.firstChild);
         }
    }
+
+}
+
+function agregarstorage(){
+    localStorage.setItem('local',JSON.stringify(local))
 }
 
 const ui = new UI();
@@ -171,11 +196,12 @@ const administrarCitas = new Citas();
 
 function nuevaCita(e) {
     e.preventDefault();
+    
 
-    const {lafoto,mascota, propietario, telefono, fecha, hora, sintomas } = citaObj;
+    const {lafoto,nombre, marca, cilindraje, placa, soat, consumo,descripcion } = citaObj;
 
     // Validar
-    if(lafoto === ''|| mascota === '' || propietario === '' || telefono === '' || fecha === ''  || hora === '' || sintomas === '' ) {
+    if(lafoto === ''|| nombre === '' || marca === '' || cilindraje === '' || placa === ''  || soat === '' || consumo === '' || descripcion === '') {
         ui.imprimirAlerta('Todos los mensajes son Obligatorios', 'error')
 
         return;
@@ -207,6 +233,7 @@ function nuevaCita(e) {
 
     // Imprimir el HTML de citas
     ui.imprimirCitas(administrarCitas);
+    agregarstorage();
 
     // Reinicia el objeto para evitar futuros problemas de validación
     reiniciarObjeto();
@@ -214,17 +241,20 @@ function nuevaCita(e) {
     // Reiniciar Formulario
     formulario.reset();
 
+    
+
 }
 
 function reiniciarObjeto() {
     // Reiniciar el objeto
     citaObj.lafoto='';
-    citaObj.mascota = '';
-    citaObj.propietario = '';
-    citaObj.telefono = '';
-    citaObj.fecha = '';
-    citaObj.hora = '';
-    citaObj.sintomas = '';
+    citaObj.nombre = '';
+    citaObj.marca = '';
+    citaObj.cilindraje = '';
+    citaObj.placa = '';
+    citaObj.soat = '';
+    citaObj.consumo = '';
+    citaObj.descripcion = '';
 }
 
 
@@ -236,26 +266,28 @@ function eliminarCita(id) {
 
 function cargarEdicion(cita) {
 
-    const {lafoto,mascota, propietario, telefono, fecha, hora, sintomas, id } = cita;
+    const {lafoto,nombre, marca, cilindraje, placa, soat, consumo,descripcion, id } = cita;
 
     // Reiniciar el objeto
     citaObj.lafoto = lafoto;
-    citaObj.mascota = mascota;
-    citaObj.propietario = propietario;
-    citaObj.telefono = telefono;
-    citaObj.fecha = fecha
-    citaObj.hora = hora;
-    citaObj.sintomas = sintomas;
+    citaObj.nombre = nombre;
+    citaObj.marca = marca;
+    citaObj.cilindraje = cilindraje;
+    citaObj.placa = placa;
+    citaObj.soat = soat;
+    citaObj.consumo = consumo;
+    citaObj.descripcion = descripcion; 
     citaObj.id = id;
 
     // Llenar los Inputs
     fotoInput.src=lafoto;
-    mascotaInput.value = mascota;
-    propietarioInput.value = propietario;
-    telefonoInput.value = telefono;
-    fechaInput.value = fecha;
-    horaInput.value = hora;
-    sintomasInput.value = sintomas;
+    nombreInput.value = nombre;
+    marcaInput.value = marca;
+    cilindrajeInput.value = cilindraje;
+    placaInput.value = placa
+    soatInput.value = soat
+    consumoInput.value = consumo;
+    descripcionInput.value = descripcion;
 
     formulario.querySelector('button[type="submit"]').textContent = 'Guardar Cambios';
 
