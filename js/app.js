@@ -17,15 +17,17 @@ formulario.addEventListener('submit', nuevaCita);
 
 let editando = false;
 
-let local = [];
 
 
+
+let array = [];
 // Eventos
 eventListeners();
 function eventListeners() {
+   
     document.addEventListener('DOMContentLoaded',()=>{
-        local = JSON.parse(localStorage.getItem('local')) || [];
-                ui.imprimirCitas(administrarCitas)
+       array  = JSON.parse(localStorage.getItem('array')) || [];
+                // ui.imprimirCitas(administrarCitas)
     })
     fotoInput.addEventListener('change',(e)=>{
         citaObj[e.target.name] = e.target.files[0];
@@ -67,17 +69,20 @@ function datosCita(e) {
 class Citas {
     constructor() {
         this.citas = []
+        
     }
     agregarCita(cita) {
         this.citas = [...this.citas, cita];
-        local.push(citaObj);
+        agregarstorage(this.citas);
     }
     editarCita(citaActualizada) {
         this.citas = this.citas.map( cita => cita.id === citaActualizada.id ? citaActualizada : cita)
+        agregarstorage(this.citas);
     }
 
     eliminarCita(id) {
         this.citas = this.citas.filter( cita => cita.id !== id);
+        agregarstorage(this.citas);
     }
 }
 
@@ -187,12 +192,13 @@ class UI {
 
 }
 
-function agregarstorage(){
-    localStorage.setItem('local',JSON.stringify(local))
+function agregarstorage(e){
+    localStorage.setItem('array',JSON.stringify(e))
 }
 
 const ui = new UI();
 const administrarCitas = new Citas();
+// let array = administrarCitas;
 
 function nuevaCita(e) {
     e.preventDefault();
@@ -233,7 +239,7 @@ function nuevaCita(e) {
 
     // Imprimir el HTML de citas
     ui.imprimirCitas(administrarCitas);
-    agregarstorage();
+    
 
     // Reinicia el objeto para evitar futuros problemas de validación
     reiniciarObjeto();
@@ -255,6 +261,7 @@ function reiniciarObjeto() {
     citaObj.soat = '';
     citaObj.consumo = '';
     citaObj.descripcion = '';
+  
 }
 
 
@@ -262,6 +269,7 @@ function eliminarCita(id) {
     administrarCitas.eliminarCita(id);
 
     ui.imprimirCitas(administrarCitas)
+  
 }
 
 function cargarEdicion(cita) {
@@ -292,5 +300,6 @@ function cargarEdicion(cita) {
     formulario.querySelector('button[type="submit"]').textContent = 'Guardar Cambios';
 
     editando = true;
+    
 
 }
